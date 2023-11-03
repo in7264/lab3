@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>RSA Encryption/Decryption</title>
+</head>
+<body>
+    <h1>RSA Encryption/Decryption</h1>
+
+    <h2>Generate Key Pair</h2>
+    <label for="p">Enter prime number p:</label>
+    <input type="text" id="p" value="3557">
+    <br>
+
+    <label for="q">Enter prime number q:</label>
+    <input type="text" id="q" value="2579">
+    <br>
+
+    <label for="e">Enter public exponent e:</label>
+    <input type="text" id="e" value="3">
+    <br>
+
+    <button id="generateKey">Generate Key Pair</button>
+
+    <h3>Generated Key Pair:</h3>
+    <p>Modulus (n): <span id="nValue"></span></p>
+    <p>Public Exponent (e): <span id="publicExponent"></span></p>
+    <p>Private Exponent (d): <span id="privateExponent"></span></p>
+    <p>Prime p: <span id="pValue"></span></p>
+    <p>Prime q: <span id="qValue"></span></p>
+
+    <h2>Encryption</h2>
+    <label for="message">Enter a message (numbers separated by space):</label>
+    <input type="text" id="message">
+    <br>
+
+    <button id="encrypt">Encrypt</button>
+
+    <h3>Encrypted Messages:</h3>
+    <p>Encrypted Message: <span id="encryptedMessages"></span></p>
+
+    <h2>Decryption</h2>
+    <label for="encryptedMessage">Enter encrypted message (numbers separated by space):</label>
+    <input type="text" id="encryptedMessage">
+    <br>
+
+    <label for="d">Enter private exponent d:</label>
+    <input type="text" id="d">
+    <br>
+
+    <label for="nDecryption">Enter modulus n for decryption:</label>
+    <input type="text" id="nDecryption">
+    <br>
+
+    <button id="decrypt">Decrypt</button>
+
+    <h3>Decrypted Messages:</h3>
+    <p>Decrypted Message: <span id="decryptedMessages"></span></p>
+
+    <script>
+        function numberCalculation(m, n, e) {
+            var temp = m;
+            for (var i = 1; i < e; i++) {
+                temp = (temp * m) % n;
+            }
+            return temp;
+        }
+
+        function generatePrivateKey(p, q, e) {
+            var n = p * q;
+            var phi = (p - 1) * (q - 1);
+            var d = modInverse(e, phi);
+            return {
+                n: n,
+                e: e,
+                d: d,
+                p: p,
+                q: q
+            };
+        }
+
+        function modInverse(a, m) {
+            for (var x = 1; x < m; x++) {
+                if ((a * x) % m === 1) {
+                    return x;
+                }
+            }
+            return null;
+        }
+
+        document.getElementById("generateKey").addEventListener("click", function () {
+            var p = parseInt(document.getElementById("p").value);
+            var q = parseInt(document.getElementById("q").value);
+            var e = parseInt(document.getElementById("e").value);
+
+            var privateKey = generatePrivateKey(p, q, e);
+
+            document.getElementById("nValue").textContent = privateKey.n;
+            document.getElementById("publicExponent").textContent = privateKey.e;
+            document.getElementById("privateExponent").textContent = privateKey.d;
+            document.getElementById("pValue").textContent = privateKey.p;
+            document.getElementById("qValue").textContent = privateKey.q;
+        });
+
+        document.getElementById("encrypt").addEventListener("click", function () {
+            var message = document.getElementById("message").value;
+            var e = parseInt(document.getElementById("e").value);
+            var n = parseInt(document.getElementById("nValue").textContent);
+
+            var messages = message.split(" ");
+            var encryptedMessages = [];
+            for (var i = 0; i < messages.length; i++) {
+                var m = parseInt(messages[i]);
+                var c = numberCalculation(m, n, e);
+                encryptedMessages.push(c);
+            }
+
+            document.getElementById("encryptedMessages").textContent = encryptedMessages.join(" ");
+        });
+
+        document.getElementById("decrypt").addEventListener("click", function () {
+            var encryptedMessage = document.getElementById("encryptedMessage").value;
+            var d = parseInt(document.getElementById("d").value);
+            var n = parseInt(document.getElementById("nDecryption").value);
+
+            var encryptedMessages = encryptedMessage.split(" ");
+            var decryptedMessages = [];
+            for (var i = 0; i < encryptedMessages.length; i++) {
+                var c = parseInt(encryptedMessages[i]);
+                var m = numberCalculation(c, n, d);
+                decryptedMessages.push(m);
+            }
+
+            document.getElementById("decryptedMessages").textContent = decryptedMessages.join(" ");
+        });
+    </script>
+</body>
+</html>
